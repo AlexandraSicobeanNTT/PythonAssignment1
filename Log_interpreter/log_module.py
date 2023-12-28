@@ -24,6 +24,113 @@ def read_file(file_path):
                 logs.append(log_entry)
     return logs
 
+#ex 4
+def find_app_with_most_errors(logs):
+    app_error_count = {
+        "BackendApp": 0,
+        "FrontendApp": 0,
+        "API": 0,
+        "System": 0
+    }
+
+    with open(logs, 'r') as file:
+        content = file.readlines()
+
+    for line in content:
+        if "[ERROR]" in line:
+            if "BackendApp" in line:
+                app_error_count["BackendApp"] += 1
+            elif "FrontendApp" in line:
+                app_error_count["FrontendApp"] += 1
+            elif "API" in line:
+                app_error_count["API"] += 1
+            elif "SYSTEM" in line:
+                app_error_count["System"] += 1
+
+    if app_error_count:
+        most_errors_app = max(app_error_count, key=app_error_count.get)
+        count_error = app_error_count[most_errors_app]
+
+        return most_errors_app, count_error
+    else:
+        return None, 0
+
+
+#ex 5
+def find_app_with_most_successful_runs(logs):
+    app_success_count = {
+        "BackendApp": 0,
+        "FrontendApp": 0,
+        "API": 0,
+        "System": 0
+    }
+
+    with open(logs, 'r') as file:
+        content = file.readlines()
+
+    for line in content:
+        if "[INFO]" in line:
+            if "BackendApp" in line:
+                app_success_count["BackendApp"] += 1
+            elif "FrontendApp" in line:
+                app_success_count["FrontendApp"] += 1
+            elif "API" in line:
+                app_success_count["API"] += 1
+            elif "SYSTEM" in line:
+                app_success_count["System"] += 1
+
+    if app_success_count:
+        most_success_app = max(app_success_count, key=app_success_count.get)
+        success_count = app_success_count[most_success_app]
+
+        return most_success_app, success_count
+    else:
+        return None, 0
+
+
+
+#ex 6
+def find_third_of_day_with_most_failures(logs):
+    thirds = {
+        "00:00:00 - 07:59:59": 0,
+        "08:00:00 - 15:59:59": 0,
+        "16:00:00 - 23:59:59": 0
+    }
+
+    with open(logs, 'r') as file:
+        content = file.readlines()
+
+    for line in content:
+        if "[ERROR]" in line:
+            timestamp = line.split(" - ")[0]
+            hour = int(timestamp.split(":")[0])
+
+            if hour >= 0 and hour <= 7:
+                thirds["00:00:00 - 07:59:59"] += 1
+            elif hour >= 8 and hour <= 15:
+                thirds["08:00:00 - 15:59:59"] += 1
+            elif hour >= 16 and hour <= 23:
+                thirds["16:00:00 - 23:59:59"] += 1
+
+    if thirds:
+        most_failures_third = max(thirds, key=thirds.get)
+        failure_count = thirds[most_failures_third]
+
+        return most_failures_third, failure_count
+    else:
+        return None, 0
+
+# Usage ex 4
+app, error_count = find_app_with_most_errors("../Log_info/output.txt")
+print(f"The app with the most failed runs is {app} with {error_count} errors.")
+
+# Usage ex 5
+app, success_count = find_app_with_most_successful_runs("../Log_info/output.txt")
+print(f"The app with the most successful runs is {app} with {success_count} successful runs.")
+
+# Usage ex 6
+third, failure_count = find_third_of_day_with_most_failures("../Log_info/output.txt")
+print(f"The {third} time interval had the most failed runs with {failure_count} failures.")
 
 def longest_and_shortest_successful_runtime_per_app_type(logs):
     app_types = ['BackendApp', 'FrontendApp', 'API', 'SYSTEM']

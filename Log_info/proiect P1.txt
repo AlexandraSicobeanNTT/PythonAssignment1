@@ -1,0 +1,12 @@
+1. How many INFO/DEBUG/ERROR logs per type of app (INFO 2 entries count as one log)
+2. Average sucessful run time per type of app (Frontend, Backend, API) - not SYSTEM
+3. How many times each app (Frontend, Backend, API, System) failed throughout the day
+4. App with the most failed runs (ERROR) and how many 
+5. App with the most succesful runs (INFO) and how many
+6. Which third of day (00:00:00 - 07:59:59/08:00:00-15:59:59/16:00:00-23:59:59) had the most failed runs
+7. Calculate the longest and shortest successful run times across all types of apps (Frontend, Backend, API). 
+Provide the timestamps for these occurrences
+8. Identify the hour of the day (eg., 00:00:00-00:59:00, 01:00:00-01:59:00 etc.) when each app type (Frontend, Backend, API) 
+had the most activities (INFO/ERROR/DEBUG)
+9. Calculate the failure rate percentage for each app type. (Failure rate = (No. of ERROR logs) / (Total logs of that app type) * 100)
+
