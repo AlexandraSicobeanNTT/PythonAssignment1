@@ -24,6 +24,68 @@ def read_file(file_path):
                 logs.append(log_entry)
     return logs
 
+#ex 1
+def count_logs_per_type_and_app(file_path):
+    log_entries = read_file(file_path)
+    log_count = {'INFO': {'BackendApp': 0, 'FrontendApp': 0, 'API': 0, 'SYSTEM': 0},
+                 'DEBUG': {'BackendApp': 0, 'FrontendApp': 0, 'API': 0, 'SYSTEM': 0},
+                 'ERROR': {'BackendApp': 0, 'FrontendApp': 0, 'API': 0, 'SYSTEM': 0}}
+
+    prev_info_line = None
+
+    for log_entry in log_entries:
+        log_type = log_entry['log-type']
+        app = log_entry['app-type']
+
+        if log_type in log_count and app in log_count[log_type]:
+            if log_type == 'INFO':
+                if prev_info_line is not None:
+                    prev_info_line = None
+                else:
+                    log_count[log_type][app] += 1
+                    prev_info_line = log_entry['timestamp']
+            else:
+                log_count[log_type][app] += 1
+
+    return log_count
+
+#ex 2
+def calculate_average_run_time(file_path):
+    run_times = {'BackendApp': [], 'FrontendApp': [], 'API': []}
+    result = []
+
+    with open(file_path, 'r') as file:
+        for line in file:
+            match = re.match(r"(\d{2}:\d{2}:\d{2}) - \[\w+\] - (\w+) has ran successfully in (\d+)ms", line)
+            if match:
+                log_type, run_time = match.groups()[1], int(match.groups()[2])
+
+                if log_type in run_times:
+                    run_times[log_type].append(run_time)
+
+    for app, run_time_list in run_times.items():
+        if run_time_list:
+            average_run_time = sum(run_time_list) / len(run_time_list)
+            result.append(f'{app}: {average_run_time}ms')
+        else:
+            result.append(f'{app}: No successful runs recorded')
+
+    return result
+
+#ex 3
+def count_failures_per_app(file_path):
+    log_entries = read_file(file_path)
+
+    failures_count = {'BackendApp': 0, 'FrontendApp': 0, 'API': 0, 'SYSTEM': 0}
+
+    for log_entry in log_entries:
+        log_type = log_entry['log-type']
+        app = log_entry['app-type']
+        if 'ERROR' in log_type and app in failures_count:
+            failures_count[app] += 1
+
+    return failures_count
+
 #ex 4
 def find_app_with_most_errors(file_path):
     app_error_count = {
@@ -108,7 +170,9 @@ def find_third_of_day_with_most_failures(file_path):
 
 
 # ex 7
-def longest_and_shortest_successful_runtime_per_app_type(logs):
+def longest_and_shortest_successful_runtime_per_app_type(file_path):
+    logs = read_file(file_path)
+
     app_types = ['BackendApp', 'FrontendApp', 'API', 'SYSTEM']
     runtimes = {app_type: {'max_runtime': float('-inf'), 'min_runtime': float('inf')} for app_type in app_types}
     filtered_logs = [log for log in logs if log.get('log-type') == 'INFO']
@@ -125,11 +189,13 @@ def longest_and_shortest_successful_runtime_per_app_type(logs):
         if found_number < min_runtime:
             runtimes[log.get('app-type')]['min_runtime'] = found_number
 
-    print(runtimes)
+    return runtimes
 
 
 # ex 8
-def hour_of_the_day_with_most_activity_per_app_type(logs):
+def hour_of_the_day_with_most_activity_per_app_type(file_path):
+    logs = read_file(file_path)
+
     app_types = ['BackendApp', 'FrontendApp', 'API', 'SYSTEM']
     hourly_logs = {app_type: {hour: 0 for hour in range(24)} for app_type in app_types}
     hours_with_most_activity = []
@@ -147,14 +213,16 @@ def hour_of_the_day_with_most_activity_per_app_type(logs):
     return hours_with_most_activity
 
 # ex 9
-def compute_failure_rate_per_app_type(logs):
+def compute_failure_rate_per_app_type(file_path):
+    logs = read_file(file_path)
+
     app_types = ['BackendApp', 'FrontendApp', 'API', 'SYSTEM']
     failure_rates = []
 
     for app_type in app_types:
         error_count = sum(1 for log in logs if log.get('app-type') == app_type and log.get('log-type') == 'ERROR')
         total_count = sum(1 for log in logs if log.get('app-type') == app_type)
-        failure_rates.append({'app-type': app_type, 'failure_rate': error_count / total_count})
+        failure_rates.append({app_type: error_count / total_count})
 
     return failure_rates
 
@@ -162,10 +230,15 @@ def compute_failure_rate_per_app_type(logs):
 # Main
 # Create a dictionary mapping method names to their corresponding functions
 methods = {
+    "Number of Logs for each Log and App Type": count_logs_per_type_and_app, # ex 1
+    "Average Runtime per App Type": calculate_average_run_time, # ex 2
+    "Number of Failures per App Type": count_failures_per_app, # ex 3
     "App with Most Errors and how many ": find_app_with_most_errors, # ex 4
     "App with Most Successful Runs and how many": find_app_with_most_successful_runs, # ex 5
     "Third of Day with Most Failures": find_third_of_day_with_most_failures, # ex 6
-    # rest of the methods here
+    "Longest and Shortest Successful Runtimes per App Type": longest_and_shortest_successful_runtime_per_app_type, # ex 7
+    "Hours of the Day with Most Successful Activity per App Type": hour_of_the_day_with_most_activity_per_app_type, # ex 8
+    "Failure Rate per App Type": compute_failure_rate_per_app_type # ex 9
 }
 
 # Iterate over the dictionary and execute each method
